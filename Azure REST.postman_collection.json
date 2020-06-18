@@ -1,0 +1,531 @@
+{
+	"info": {
+		"_postman_id": "739adf62-3379-49f4-9d84-73728cfb0211",
+		"name": "Azure REST",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "40ac251d-d79f-4921-8ac1-81ab652ca968",
+						"exec": [
+							"pm.environment.set(\"bearerToken\", pm.response.json().access_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientid}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{clientsecret}}",
+							"type": "text"
+						},
+						{
+							"key": "resource",
+							"value": "https://management.azure.com/",
+							"type": "text"
+						}
+					],
+					"options": {
+						"urlencoded": {}
+					}
+				},
+				"url": {
+					"raw": "https://login.microsoftonline.com/:tenantid/oauth2/token",
+					"protocol": "https",
+					"host": [
+						"login",
+						"microsoftonline",
+						"com"
+					],
+					"path": [
+						":tenantid",
+						"oauth2",
+						"token"
+					],
+					"variable": [
+						{
+							"key": "tenantid",
+							"value": "{{tenantid}}",
+							"type": "string"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Resource Groups",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{bearerToken}}"
+					}
+				],
+				"url": {
+					"raw": "https://management.azure.com/subscriptions/{{subid}}/resourcegroups?api-version=2017-05-10",
+					"protocol": "https",
+					"host": [
+						"management",
+						"azure",
+						"com"
+					],
+					"path": [
+						"subscriptions",
+						"{{subid}}",
+						"resourcegroups"
+					],
+					"query": [
+						{
+							"key": "api-version",
+							"value": "2017-05-10"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create TS deployment @ RG scope",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearerToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"properties\": {\n\t\t\"mode\": \"Incremental\",\n\t\t\"templateLink\": {\n\t\t\t\"id\": \"/subscriptions/996a2f3f-ee01-4ffd-9765-d2c3fc98f30a/resourceGroups/giants-deep/providers/Microsoft.Resources/templateSpecs/BasicLinked01/versions/1.0\"\n\t\t}\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://management.azure.com/subscriptions/{{subid}}/resourcegroups/:resourceGroup/providers/Microsoft.Resources/deployments/:deploymentName?api-version=2020-06-01",
+					"protocol": "https",
+					"host": [
+						"management",
+						"azure",
+						"com"
+					],
+					"path": [
+						"subscriptions",
+						"{{subid}}",
+						"resourcegroups",
+						":resourceGroup",
+						"providers",
+						"Microsoft.Resources",
+						"deployments",
+						":deploymentName"
+					],
+					"query": [
+						{
+							"key": "api-version",
+							"value": "2020-06-01"
+						}
+					],
+					"variable": [
+						{
+							"key": "resourceGroup",
+							"value": "giants-deep",
+							"type": "string"
+						},
+						{
+							"key": "deploymentName",
+							"value": "tsdeploy-alex-2",
+							"type": "string"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create template deployment @ RG scope that kicks off TS deloyment",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearerToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"properties\": {\n\t\t\"template\": {\n\t\t\t\"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\",\n\t\t\t\"contentVersion\": \"1.0.0.0\",\n\t\t\t\"resources\": [\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"nestedTestTs\",\n\t\t\t\t\t\"type\": \"Microsoft.Resources/deployments\",\n\t\t\t\t\t\"apiVersion\": \"2020-06-01\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"mode\": \"Incremental\",\n\t\t\t\t\t\t\"templateLink\": {\n\t\t\t\t\t\t\t\"id\": \"/subscriptions/996a2f3f-ee01-4ffd-9765-d2c3fc98f30a/resourceGroups/giants-deep/providers/Microsoft.Resources/templateSpecs/BasicLinked01/versions/1.0\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t]\n\t\t},\n\t\t\"mode\": \"incremental\"\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://westcentralus.management.azure.com/subscriptions/{{subid}}/resourcegroups/:resourceGroup/providers/Microsoft.Resources/deployments/:deploymentName?api-version=2020-06-01",
+					"protocol": "https",
+					"host": [
+						"westcentralus",
+						"management",
+						"azure",
+						"com"
+					],
+					"path": [
+						"subscriptions",
+						"{{subid}}",
+						"resourcegroups",
+						":resourceGroup",
+						"providers",
+						"Microsoft.Resources",
+						"deployments",
+						":deploymentName"
+					],
+					"query": [
+						{
+							"key": "api-version",
+							"value": "2020-06-01"
+						}
+					],
+					"variable": [
+						{
+							"id": "dcc868f6-c4aa-4524-951f-685dc2f3b8a8",
+							"key": "resourceGroup",
+							"value": "giants-deep",
+							"type": "string"
+						},
+						{
+							"id": "cf660bbc-143e-4cfb-a09f-848356bd0a72",
+							"key": "deploymentName",
+							"value": "tsdeploy-alex",
+							"type": "string"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create TS deployment @ RG scope Copy",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearerToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://westcentralus.management.azure.com/subscriptions/{{subid}}/resourcegroups/:resourceGroup/providers/Microsoft.Resources/deployments/:deploymentName?api-version=2020-06-01",
+					"protocol": "https",
+					"host": [
+						"westcentralus",
+						"management",
+						"azure",
+						"com"
+					],
+					"path": [
+						"subscriptions",
+						"{{subid}}",
+						"resourcegroups",
+						":resourceGroup",
+						"providers",
+						"Microsoft.Resources",
+						"deployments",
+						":deploymentName"
+					],
+					"query": [
+						{
+							"key": "api-version",
+							"value": "2020-06-01"
+						}
+					],
+					"variable": [
+						{
+							"key": "resourceGroup",
+							"value": "giants-deep",
+							"type": "string"
+						},
+						{
+							"key": "deploymentName",
+							"value": "tsdeploy-alex",
+							"type": "string"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get deployment @ RG scope",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearerToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://westcentralus.management.azure.com/subscriptions/{{subid}}/resourcegroups/:resourceGroup/providers/Microsoft.Resources/deployments/:deploymentName?api-version=2020-06-01",
+					"protocol": "https",
+					"host": [
+						"westcentralus",
+						"management",
+						"azure",
+						"com"
+					],
+					"path": [
+						"subscriptions",
+						"{{subid}}",
+						"resourcegroups",
+						":resourceGroup",
+						"providers",
+						"Microsoft.Resources",
+						"deployments",
+						":deploymentName"
+					],
+					"query": [
+						{
+							"key": "api-version",
+							"value": "2020-06-01"
+						}
+					],
+					"variable": [
+						{
+							"key": "resourceGroup",
+							"value": "giants-deep",
+							"type": "string"
+						},
+						{
+							"key": "deploymentName",
+							"value": "tsdeploy-alex",
+							"type": "string"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Template Spec",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearerToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://management.azure.com/subscriptions/{{subid}}/resourcegroups/:resourceGroup/providers/Microsoft.Resources/templateSpecs/:tsName?api-version=2019-06-01-preview",
+					"protocol": "https",
+					"host": [
+						"management",
+						"azure",
+						"com"
+					],
+					"path": [
+						"subscriptions",
+						"{{subid}}",
+						"resourcegroups",
+						":resourceGroup",
+						"providers",
+						"Microsoft.Resources",
+						"templateSpecs",
+						":tsName"
+					],
+					"query": [
+						{
+							"key": "api-version",
+							"value": "2019-06-01-preview"
+						}
+					],
+					"variable": [
+						{
+							"key": "resourceGroup",
+							"value": "giants-deep",
+							"type": "string"
+						},
+						{
+							"key": "tsName",
+							"value": "BasicLinked01",
+							"type": "string"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Template Spec Version",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearerToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://management.azure.com/subscriptions/{{subid}}/resourcegroups/:resourceGroup/providers/Microsoft.Resources/templateSpecs/:tsName/versions/:version?api-version=2019-06-01-preview",
+					"protocol": "https",
+					"host": [
+						"management",
+						"azure",
+						"com"
+					],
+					"path": [
+						"subscriptions",
+						"{{subid}}",
+						"resourcegroups",
+						":resourceGroup",
+						"providers",
+						"Microsoft.Resources",
+						"templateSpecs",
+						":tsName",
+						"versions",
+						":version"
+					],
+					"query": [
+						{
+							"key": "api-version",
+							"value": "2019-06-01-preview"
+						}
+					],
+					"variable": [
+						{
+							"key": "resourceGroup",
+							"value": "giants-deep",
+							"type": "string"
+						},
+						{
+							"key": "tsName",
+							"value": "BasicLinked01",
+							"type": "string"
+						},
+						{
+							"key": "version",
+							"value": "1.0",
+							"type": "string"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
