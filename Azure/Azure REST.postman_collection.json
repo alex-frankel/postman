@@ -138,7 +138,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"properties\": {\n\t\t\"mode\": \"Incremental\",\n\t\t\"templateLink\": {\n\t\t\t\"id\": \"/subscriptions/996a2f3f-ee01-4ffd-9765-d2c3fc98f30a/resourceGroups/giants-deep/providers/Microsoft.Resources/templateSpecs/BasicLinked01/versions/1.0\"\n\t\t}\n\t}\n}",
+					"raw": "{\n\t\"properties\": {\n\t\t\"mode\": \"Incremental\",\n\t\t\"templateLink\": {\n\t\t\t\"id\": \"/subscriptions/996a2f3f-ee01-4ffd-9765-d2c3fc98f30a/resourceGroups/giants-deep/providers/Microsoft.Resources/templateSpecs/fasttrack-evening/versions/1.0\"\n\t\t}\n\t}\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -177,7 +177,7 @@
 						},
 						{
 							"key": "deploymentName",
-							"value": "tsdeploy-alex-2",
+							"value": "fasttrack-evening",
 							"type": "string"
 						}
 					]
@@ -209,7 +209,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"properties\": {\n\t\t\"template\": {\n\t\t\t\"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\",\n\t\t\t\"contentVersion\": \"1.0.0.0\",\n\t\t\t\"resources\": [\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"nestedTestTs\",\n\t\t\t\t\t\"type\": \"Microsoft.Resources/deployments\",\n\t\t\t\t\t\"apiVersion\": \"2020-06-01\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"mode\": \"Incremental\",\n\t\t\t\t\t\t\"templateLink\": {\n\t\t\t\t\t\t\t\"id\": \"/subscriptions/996a2f3f-ee01-4ffd-9765-d2c3fc98f30a/resourceGroups/giants-deep/providers/Microsoft.Resources/templateSpecs/BasicLinked01/versions/1.0\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t]\n\t\t},\n\t\t\"mode\": \"incremental\"\n\t}\n}",
+					"raw": "{\n\t\"properties\": {\n\t\t\"template\": {\n\t\t\t\"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\",\n\t\t\t\"contentVersion\": \"1.0.0.0\",\n\t\t\t\"resources\": [\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"nestedTestTs\",\n\t\t\t\t\t\"type\": \"Microsoft.Resources/deployments\",\n\t\t\t\t\t\"apiVersion\": \"2020-06-01\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"mode\": \"Incremental\",\n\t\t\t\t\t\t\"templateLink\": {\n\t\t\t\t\t\t\t\"id\": \"[resourceId('Microsoft.Resources/templateSpecs/versions', 'fasttrack-evening', '1.0')]\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t]\n\t\t},\n\t\t\"mode\": \"incremental\"\n\t}\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -217,10 +217,9 @@
 					}
 				},
 				"url": {
-					"raw": "https://westcentralus.management.azure.com/subscriptions/{{subid}}/resourcegroups/:resourceGroup/providers/Microsoft.Resources/deployments/:deploymentName?api-version=2020-06-01",
+					"raw": "https://management.azure.com/subscriptions/{{subid}}/resourcegroups/:resourceGroup/providers/Microsoft.Resources/deployments/:deploymentName?api-version=2020-06-01",
 					"protocol": "https",
 					"host": [
-						"westcentralus",
 						"management",
 						"azure",
 						"com"
@@ -243,15 +242,13 @@
 					],
 					"variable": [
 						{
-							"id": "dcc868f6-c4aa-4524-951f-685dc2f3b8a8",
 							"key": "resourceGroup",
 							"value": "giants-deep",
 							"type": "string"
 						},
 						{
-							"id": "cf660bbc-143e-4cfb-a09f-848356bd0a72",
 							"key": "deploymentName",
-							"value": "tsdeploy-alex",
+							"value": "fasttrack-evening-module",
 							"type": "string"
 						}
 					]
@@ -521,6 +518,119 @@
 							"value": "1.0",
 							"type": "string"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Call What-If with a TemplateSpec",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f7c849da-01f9-4235-ad7d-9380af5754b4",
+						"exec": [
+							"pm.environment.set(\"whatIfResultUrl\", pm.response.headers.get(\"Location\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearerToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"properties\": {\r\n\t\t\"mode\": \"Incremental\",\r\n\t\t\"templateLink\": {\r\n\t\t\t\"id\": \"/subscriptions/996a2f3f-ee01-4ffd-9765-d2c3fc98f30a/resourceGroups/giants-deep/providers/Microsoft.Resources/templateSpecs/BasicLinked01/versions/1.0\"\r\n\t\t}\r\n\t}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://management.azure.com/subscriptions/{{subid}}/resourcegroups/:resourceGroup/providers/Microsoft.Resources/deployments/:deploymentName/whatIf?api-version=2020-06-01",
+					"protocol": "https",
+					"host": [
+						"management",
+						"azure",
+						"com"
+					],
+					"path": [
+						"subscriptions",
+						"{{subid}}",
+						"resourcegroups",
+						":resourceGroup",
+						"providers",
+						"Microsoft.Resources",
+						"deployments",
+						":deploymentName",
+						"whatIf"
+					],
+					"query": [
+						{
+							"key": "api-version",
+							"value": "2020-06-01"
+						}
+					],
+					"variable": [
+						{
+							"key": "resourceGroup",
+							"value": "giants-deep",
+							"type": "string"
+						},
+						{
+							"key": "deploymentName",
+							"value": "ts-what-if-001",
+							"type": "string"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get What-If response",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "05a638ea-5e8c-40b0-86b5-f94cec656379",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearerToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{whatIfResultUrl}}",
+					"host": [
+						"{{whatIfResultUrl}}"
 					]
 				}
 			},
